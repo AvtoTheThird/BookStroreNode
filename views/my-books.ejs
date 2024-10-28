@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles.css" />
+    <title>My Books</title>
+  </head>
+  <body>
+    <header>
+      <a href="/">
+        <img src="logo.png" style="width: 75px" alt="" />
+      </a>
+      <div style="display: flex; gap: 2rem">
+        <% if (user) { %>
+        <p>Welcome, <%= user.username %>!</p>
+        <a href="/logout">გამოსვლა</a>
+        <a href="/add-book">წიგნის დამატება</a>
+        <a href="/my-books">ჩემი წიგნები</a>
+        <% } else { %>
+        <a href="/login">შესვლა</a>
+        <a href="/register">რეგისტაცია</a>
+
+        <% } %>
+        <input type="text" name="" id="" />
+      </div>
+    </header>
+    <section class="book-content">
+      <h1>My Books</h1>
+      <a href="/add-book">Add New Book</a>
+      <div class="book-list">
+        <% if (books.length === 0) { %>
+        <p>No books found. Start by adding some!</p>
+        <% } else { %> <% books.forEach(book => { %>
+        <div class="book">
+          <h2><%= book.title %></h2>
+          <p>Author: <%= book.author %></p>
+          <p>Language: <%= book.language %></p>
+          <p>Description: <%= book.description %></p>
+          <img
+            src="/uploads/<%= book.photo.split('/').pop() %>"
+            alt="<%= book.title %>"
+          />
+          <form
+            action="/delete-book/<%= book.id %>"
+            method="POST"
+            style="display: inline"
+          >
+            <button type="submit">Delete</button>
+          </form>
+        </div>
+        <% }); %> <% } %>
+      </div>
+      <p><a href="/">Back to Home</a></p>
+    </section>
+  </body>
+</html>

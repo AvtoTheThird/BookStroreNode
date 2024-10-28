@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="shortcut icon" href="logo.png" type="image/x-icon" />
+    <title>Second-Hand Book Market</title>
+  </head>
+  <body>
+    <header>
+      <a href="/">
+        <img src="logo.png" style="width: 75px" alt="" />
+      </a>
+      <div style="display: flex; gap: 2rem">
+        <% if (user) { %>
+        <p>Welcome, <%= user.username %>!</p>
+        <a href="/logout">გამოსვლა</a>
+        <a href="/add-book">წიგნის დამატება</a>
+        <a href="/my-books">ჩემი წიგნები</a>
+        <% } else { %>
+        <a href="/login">შესვლა</a>
+        <a href="/register">რეგისტაცია</a>
+        <% } %>
+        <input type="text" placeholder="Search books..." />
+      </div>
+    </header>
+
+    <div class="container">
+      <aside class="sidebar">
+        <h3 style="color: aliceblue">ჟანრი</h3>
+        <a
+          class="<%= genre === undefined ? 'active-genre' : '' %>"
+          href="/books"
+          >ყველა</a
+        >
+        <a
+          class="<%= genre === 'sabavshvo' ? 'active-genre' : '' %>"
+          href="/books?genre=sabavshvo"
+          >საბავშვო ლიტერატურა</a
+        >
+        <a
+          class="<%= genre === 'deteqtivi' ? 'active-genre' : '' %>"
+          href="/books?genre=deteqtivi"
+          >დეტექტივი</a
+        >
+        <a
+          class="<%= genre === 'samecniero' ? 'active-genre' : '' %>"
+          href="/books?genre=samecniero"
+          >სამეცნიერო ფანტასტიკა</a
+        >
+        <a
+          class="<%= genre === 'klasika' ? 'active-genre' : '' %>"
+          href="/books?genre=klasika"
+          >კლასიკა</a
+        >
+        <a
+          class="<%= genre === 'istoriuli' ? 'active-genre' : '' %>"
+          href="/books?genre=istoriuli"
+          >ისტორიული</a
+        >
+        <a
+          class="<%= genre === 'satavgadasavlo' ? 'active-genre' : '' %>"
+          href="/books?genre=satavgadasavlo"
+          >სათავგადასავლო</a
+        >
+        <a
+          class="<%= genre === 'poezia' ? 'active-genre' : '' %>"
+          href="/books?genre=poezia"
+          >პროზა/პოეზია</a
+        >
+        <a
+          class="<%= genre === 'saswavlo' ? 'active-genre' : '' %>"
+          href="/books?genre=saswavlo"
+          >სასწავლო</a
+        >
+        <a
+          class="<%= genre === 'sxva' ? 'active-genre' : '' %>"
+          href="/books?genre=sxva"
+          >სხვა</a
+        >
+      </aside>
+
+      <section class="book-content">
+        <div id="myModal" class="modal">
+          <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <img id="modal-photo" src="" alt="" />
+            <div style="display: flex; flex-direction: column; gap: 2rem">
+              <h2 id="modal-title"></h2>
+              <p id="modal-author"></p>
+              <p id="modal-language"></p>
+              <p id="modal-description"></p>
+              <p id="modal-user">
+                Listed by: <span id="modal-username"></span>
+              </p>
+              <p id="modal-phone"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="book-list">
+          <% if (books.length === 0) { %>
+          <p>No books found. Start by adding some!</p>
+          <% } else { %> <% books.forEach(book => { %>
+          <div class="book" onclick="openModal(<%= book.id %>)">
+            <h2><%= book.title %></h2>
+            <p>Author: <%= book.author %></p>
+            <img
+              src="/uploads/<%= book.photo.split('/').pop() %>"
+              alt="<%= book.title %>"
+            />
+          </div>
+          <% }); %> <% } %>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      function openModal(bookId) {
+        fetch(`/book-details/${bookId}`)
+          .then((response) => response.json())
+          .then((data) => {
+            if (data) {
+              document.getElementById("modal-title").innerText = data.title;
+              document.getElementById(
+                "modal-author"
+              ).innerText = `Author: ${data.author}`;
+              document.getElementById(
+                "modal-language"
+              ).innerText = `Language: ${data.language}`;
+              document.getElementById(
+                "modal-description"
+              ).innerText = `Description: ${data.description}`;
+              document.getElementById("modal-username").innerText =
+                data.username;
+              document.getElementById(
+                "modal-phone"
+              ).innerText = `Phone: ${data.phone}`;
+              document.getElementById("myModal").style.display = "block";
+              document.getElementById(
+                "modal-photo"
+              ).src = `/uploads/${data.photo.split("/").pop()}`;
+            }
+          })
+          .catch((error) =>
+            console.error("Error fetching book details:", error)
+          );
+      }
+
+      function closeModal() {
+        document.getElementById("myModal").style.display = "none";
+      }
+      function fetchBooksByGenre(genre) {
+        fetch(`/books?genre=${genre}`)
+          .then((response) => response.json())
+          .then((data) => {
+            // Display books to the user
+            displayBooks(data);
+          })
+          .catch((error) => console.error("Error fetching books:", error));
+      }
+    </script>
+  </body>
+</html>

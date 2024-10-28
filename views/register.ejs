@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles.css" />
+    <title>Register</title>
+  </head>
+  <body>
+    <header>
+      <a href="/">
+        <img src="logo.png" style="width: 75px" alt="" />
+      </a>
+      <div style="display: flex; gap: 2rem">
+        <a href="/login">Login</a>
+        <a href="/register">register</a>
+
+        <input type="text" name="" id="" />
+      </div>
+    </header>
+    <section>
+      <h1>შეავსეთ ფორმა</h1>
+      <form action="/register" method="POST">
+        <div>
+          <label for="username">სახელი:</label>
+          <input type="text" id="username" name="username" required />
+        </div>
+        <div>
+          <label for="password">პაროლი:</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <div>
+          <label for="phone">ტელეფონის ნომერი:</label>
+          <input type="text" id="phone" name="phone" required />
+        </div>
+        <button type="submit">რეგისტაცია</button>
+      </form>
+      <p>უკვე ჩვენიანი ხარ? <a href="/login">შედი შენს გვერდზე</a></p>
+    </section>
+  </body>
+</html>

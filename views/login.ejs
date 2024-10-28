@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles.css" />
+    <title>Login</title>
+  </head>
+
+  <body>
+    <header>
+      <a href="/">
+        <img src="logo.png" style="width: 75px" alt="" />
+      </a>
+      <div style="display: flex; gap: 2rem">
+        <a href="/login">შესვლა</a>
+        <a href="/register">რეგისტაცია</a>
+
+        <input type="text" name="" id="" />
+      </div>
+    </header>
+    <section>
+      <h1>შეავსეთ ფორმა</h1>
+      <form action="/login" method="POST">
+        <div>
+          <label for="username">სახელი:</label>
+          <input type="text" id="username" name="username" required />
+        </div>
+        <div>
+          <label for="password">პაროლი:</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <button type="submit">Login</button>
+      </form>
+      <p>ჯერ არ ხარ ჩვენიანი? <a href="/register">დარეგისტრირდი</a></p>
+    </section>
+  </body>
+</html>

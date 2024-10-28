@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles.css" />
+    <title>Add Book</title>
+  </head>
+  <body>
+    <header>
+      <a href="/">
+        <img src="logo.png" style="width: 75px" alt="" />
+      </a>
+      <div style="display: flex; gap: 2rem">
+        <% if (user) { %>
+        <p>Welcome, <%= user.username %>!</p>
+        <a href="/logout">გამოსვლა</a>
+        <a href="/add-book">წიგნის დამატება</a>
+        <a href="/my-books">ჩემი წიგნები</a>
+        <% } else { %>
+        <a href="/login">შესვლა</a>
+        <a href="/register">რეგისტაცია</a>
+
+        <% } %>
+        <input type="text" name="" id="" />
+      </div>
+    </header>
+    <section class="book-content">
+      <h1>შეავსე ფორმა</h1>
+      <form action="/add-book" method="POST" enctype="multipart/form-data">
+        <div>
+          <label for="title">სახელი:</label>
+          <input type="text" id="title" name="title" required />
+        </div>
+        <div>
+          <label for="author">ავტორი:</label>
+          <input type="text" id="author" name="author" required />
+        </div>
+        <div>
+          <label for="genre">ჟანრი:</label>
+          <select name="genre" id="genre">
+            <option value="sabavshvo">საბავშვო</option>
+            <option value="deteqtivi">დეტექტივი</option>
+            <option value="samecniero">სამეც. ფანტასტიკა</option>
+            <option value="klasika">კლასიკა</option>
+            <option value="istoriuli">ისტორიული</option>
+            <option value="satavgadasavlo">სათავგადასავლო</option>
+            <option value="poezia">პროზა/პოეზია</option>
+            <option value="saswavlo">სასწავლო</option>
+            <option value="sxva">სხვა</option>
+          </select>
+        </div>
+        <div>
+          <label for="language">წიგნის ენა:</label>
+          <input type="text" id="language" name="language" required />
+        </div>
+
+        <div>
+          <label for="description">დამატებითი ინფორმაცია:</label>
+          <textarea id="description" name="description" required></textarea>
+        </div>
+        <div>
+          <label for="photo">წიგნის ფოტო:</label>
+          <input
+            type="file"
+            id="photo"
+            name="photo"
+            accept="image/*"
+            required
+          />
+        </div>
+        <button type="submit">წიგნის დამატება</button>
+      </form>
+      <p><a href="/">მთავარზე დაბრუნება</a></p>
+    </section>
+  </body>
+</html>
