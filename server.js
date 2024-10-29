@@ -5,8 +5,11 @@ const bcrypt = require("bcrypt");
 const multer = require("multer");
 const upload = multer({ dest: "public/uploads/" });
 const path = require("path");
-const fs = require("fs");
-const { log } = require("console");
+const sharp = require("sharp");
+const fs = require("fs").promises;
+const { existsSync, unlinkSync } = require("fs"); // Correctly import sync operations
+const { pipeline } = require("stream/promises");
+const { exec } = require("child_process");
 
 const app = express();
 const db = new sqlite3.Database("./database/books.db");
@@ -214,26 +217,69 @@ const storage = multer.diskStorage({
 });
 
 // Handle the book submission
-app.post("/add-book", upload.single("photo"), (req, res) => {
-  console.log(req.body);
+app.post("/add-book", upload.single("photo"), async (req, res) => {
+  try {
+    const { title, author, genre, language, description } = req.body;
+    const userId = req.session.user.id;
 
-  const { title, author, genre, language, description } = req.body;
-  const photoPath = req.file.path.replace(/\\/g, "/"); // Replace backslashes with forward slashes
-  const userId = req.session.user.id;
-  console.log(photoPath);
-
-  // Store only the relative path
-  db.run(
-    `INSERT INTO books (title, author, genre, language, description, photo, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [title, author, genre, language, description, photoPath, userId],
-    function (err) {
-      if (err) {
-        console.error(err.message);
-        return res.status(500).send("Error adding book");
-      }
-      res.redirect("/");
+    if (!req.file) {
+      return res.status(400).send("No photo uploaded");
     }
-  );
+
+    const originalPath = req.file.path;
+    const filename = path.parse(req.file.filename).name;
+    const compressedFilename = `${filename}-compressed.jpg`;
+    const compressedPath = path.join(
+      path.dirname(originalPath),
+      compressedFilename
+    );
+
+    // Compress image
+    await sharp(originalPath)
+      .resize(800, 800, {
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .jpeg({
+        quality: 80,
+        mozjpeg: true,
+      })
+      .toFile(compressedPath);
+
+    // Store the compressed file path
+    const photoPath = compressedPath.replace(/\\/g, "/");
+
+    // Add to database
+    await new Promise((resolve, reject) => {
+      db.run(
+        `INSERT INTO books (title, author, genre, language, description, photo, user_id) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [title, author, genre, language, description, photoPath, userId],
+        function (err) {
+          if (err) reject(err);
+          else resolve();
+        }
+      );
+    });
+
+    // Delete original file using command line (most reliable method)
+    const deleteCommand =
+      process.platform === "win32"
+        ? `del /f "${originalPath}"`
+        : `rm -f "${originalPath}"`;
+
+    await new Promise((resolve, reject) => {
+      exec(deleteCommand, (error) => {
+        if (error) reject(error);
+        else resolve();
+      });
+    });
+
+    res.redirect("/");
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).send("An error occurred");
+  }
 });
 app.get("/books", (req, res) => {
   const genre = req.query.genre;
