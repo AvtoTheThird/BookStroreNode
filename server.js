@@ -6,6 +6,7 @@ const multer = require("multer");
 const upload = multer({ dest: "public/uploads/" });
 const path = require("path");
 const fs = require("fs");
+const { log } = require("console");
 
 const app = express();
 const db = new sqlite3.Database("./database/books.db");
@@ -254,6 +255,20 @@ app.get("/books", (req, res) => {
 
     res.render("index", { books, user: req.session.user, genre });
   });
+});
+app.get("/search", (req, res) => {
+  const query = req.query.query.toLowerCase(); // Get the search query
+
+  db.all(
+    `SELECT * FROM books WHERE LOWER(title) LIKE ? OR LOWER(author) LIKE ?`,
+    [`%${query}%`, `%${query}%`],
+    (err, books) => {
+      if (err) {
+        return res.status(500).send("Error retrieving books");
+      }
+      res.json({ books }); // Respond with the filtered books
+    }
+  );
 });
 // Start Server
 app.listen(3000, () => console.log("Server running on http://localhost:3000"));

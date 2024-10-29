@@ -22,7 +22,8 @@
         <a href="/login">შესვლა</a>
         <a href="/register">რეგისტაცია</a>
         <% } %>
-        <input type="text" placeholder="Search books..." />
+        <input type="text" id="search-input" placeholder="Search books..." />
+        <button onclick="searchBooks()">Search</button>
       </div>
     </header>
 
@@ -157,6 +158,39 @@
           .then((data) => {
             // Display books to the user
             displayBooks(data);
+          })
+          .catch((error) => console.error("Error fetching books:", error));
+      }
+      function searchBooks() {
+        const query = document.getElementById("search-input").value.trim();
+
+        if (!query) {
+          return; // Do nothing if the search input is empty
+        }
+
+        fetch(`/search?query=${encodeURIComponent(query)}`)
+          .then((response) => response.json())
+          .then((data) => {
+            const bookList = document.querySelector(".book-list");
+            bookList.innerHTML = ""; // Clear existing books
+
+            if (data.books.length === 0) {
+              bookList.innerHTML = "<p>No matching books found.</p>";
+              return;
+            }
+
+            data.books.forEach((book) => {
+              const bookDiv = document.createElement("div");
+              bookDiv.classList.add("book");
+              bookDiv.innerHTML = `
+          <h2>${book.title}</h2>
+          <p>Author: ${book.author}</p>
+          <img src="/uploads/${book.photo.split("/").pop()}" alt="${
+                book.title
+              }" />
+        `;
+              bookList.appendChild(bookDiv);
+            });
           })
           .catch((error) => console.error("Error fetching books:", error));
       }
