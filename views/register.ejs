@@ -9,18 +9,43 @@
   <body>
     <header>
       <a href="/">
-        <img src="logo.png" style="width: 75px" alt="" />
+        <img class="logo" src="logo.png" alt="" />
       </a>
-      <div style="display: flex; gap: 2rem">
-        <a href="/login">Login</a>
-        <a href="/register">register</a>
+      <div>
+        <a href="/about">საიტის შესახებ</a>
 
-        <input type="text" name="" id="" />
+        <% if (user) { %>
+        <div class="user-menu">
+          <p style="color: aliceblue; text-align: center">
+            გამარჯობა, <%= user.username %>! <br />
+            <span>&nabla;</span>
+          </p>
+
+          <div class="user-options">
+            <a href="/logout">გამოსვლა</a>
+            <a href="/add-book">წიგნის დამატება</a>
+            <a href="/my-books">ჩემი წიგნები</a>
+          </div>
+        </div>
+        <% } else { %>
+        <a href="/login">შესვლა</a>
+        <a href="/register">რეგისტრაცია</a>
+        <% } %>
+        <div style="margin: 0px; padding: 0px">
+          <input type="text" id="search-input" placeholder="Search books..." />
+          <button
+            style="background: none; border: none"
+            onclick="searchBooks()"
+          >
+            <img class="search-img" src="/search.png" alt="" />
+          </button>
+        </div>
       </div>
     </header>
     <section>
-      <h1>შეავსეთ ფორმა</h1>
-      <form action="/register" method="POST">
+      <form class="form" action="/register" method="POST">
+        <h1>შეავსეთ ფორმა</h1>
+
         <div>
           <label for="username">სახელი:</label>
           <input type="text" id="username" name="username" required />
@@ -34,8 +59,13 @@
           <input type="text" id="phone" name="phone" required />
         </div>
         <button type="submit">რეგისტაცია</button>
+        <p>
+          უკვე ჩვენიანი ხარ?
+          <a href="/login" style="color: rgb(108, 123, 255)"
+            >შედი შენს გვერდზე</a
+          >
+        </p>
       </form>
-      <p>უკვე ჩვენიანი ხარ? <a href="/login">შედი შენს გვერდზე</a></p>
     </section>
   </body>
 </html>

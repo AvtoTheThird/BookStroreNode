@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="shortcut icon" href="logo.png" type="image/x-icon" />
+    <title>Second-Hand Book Market</title>
+  </head>
+  <body>
+    <header>
+      <a href="/">
+        <img class="logo" src="logo.png" alt="" />
+      </a>
+      <div>
+        <a href="/about">საიტის შესახებ</a>
+
+        <% if (user) { %>
+        <div class="user-menu">
+          <p style="color: aliceblue; text-align: center">
+            გამარჯობა, <%= user.username %>! <br />
+            <span>&nabla;</span>
+          </p>
+
+          <div class="user-options">
+            <a href="/logout">გამოსვლა</a>
+            <a href="/add-book">წიგნის დამატება</a>
+            <a href="/my-books">ჩემი წიგნები</a>
+          </div>
+        </div>
+        <% } else { %>
+        <a href="/login">შესვლა</a>
+        <a href="/register">რეგისტრაცია</a>
+        <% } %>
+        <div style="margin: 0px; padding: 0px">
+          <input type="text" id="search-input" placeholder="Search books..." />
+          <button
+            style="background: none; border: none"
+            onclick="searchBooks()"
+          >
+            <img class="search-img" src="/search.png" alt="" />
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="container">
+      <section class="book-content">
+        <h1>გამარჯობა</h1>
+        <div class="about">
+          <details>
+            <summary>საიტის შესახებ</summary>
+            <p>
+              საიტის უკან არ დგას არცერთი კომპანია. ვებგვერდი შექმნილია 1
+              ადამინის მიერ.
+            </p>
+          </details>
+          <details>
+            <summary>საიტის მოხმარების წესები</summary>
+            <p>
+              1. საიტზე დადებული ბევრი ერთიდაიგივე განცხადება წაიშლება დამდების
+              გვერდიანად
+            </p>
+            <p>
+              2. საიტი არ იღებს არანაირ პასუხისმგებლობას ყალბ ან თაღლითურ
+              სქემაზე.
+            </p>
+          </details>
+          <details>
+            <summary>კონტაქტი</summary>
+            <p>
+              საიტთან დაგავშირებულ კითხვებზე ან ბიზნეს შემოთავაზებებ შეგიძლიათ
+              მომწეროთ აქ avtonariashvili@gmail.com
+            </p>
+          </details>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

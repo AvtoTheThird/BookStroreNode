@@ -9,25 +9,40 @@
   <body>
     <header>
       <a href="/">
-        <img src="logo.png" style="width: 75px" alt="" />
+        <img class="logo" src="logo.png" alt="" />
       </a>
-      <div style="display: flex; gap: 2rem">
+      <div style="display: flex; align-items: center; gap: 2rem">
+        <a href="/about">საიტის შესახებ</a>
+
         <% if (user) { %>
-        <p>Welcome, <%= user.username %>!</p>
-        <a href="/logout">გამოსვლა</a>
-        <a href="/add-book">წიგნის დამატება</a>
-        <a href="/my-books">ჩემი წიგნები</a>
+        <div class="user-menu">
+          <p style="color: aliceblue; text-align: center">
+            გამარჯობა, <%= user.username %>! <br />
+            <span>&nabla;</span>
+          </p>
+
+          <div class="user-options">
+            <a href="/logout">გამოსვლა</a>
+            <a href="/add-book">წიგნის დამატება</a>
+            <a href="/my-books">ჩემი წიგნები</a>
+          </div>
+        </div>
         <% } else { %>
         <a href="/login">შესვლა</a>
-        <a href="/register">რეგისტაცია</a>
-
+        <a href="/register">რეგისტრაცია</a>
         <% } %>
-        <input type="text" name="" id="" />
+        <input type="text" id="search-input" placeholder="Search books..." />
+        <button onclick="searchBooks()">Search</button>
       </div>
     </header>
     <section class="book-content">
       <h1>შეავსე ფორმა</h1>
-      <form action="/add-book" method="POST" enctype="multipart/form-data">
+      <form
+        class="form"
+        action="/add-book"
+        method="POST"
+        enctype="multipart/form-data"
+      >
         <div>
           <label for="title">სახელი:</label>
           <input type="text" id="title" name="title" required />
@@ -39,16 +54,20 @@
         <div>
           <label for="genre">ჟანრი:</label>
           <select name="genre" id="genre">
-            <option value="sabavshvo">საბავშვო</option>
+            <option value="klasika">კლასიკა</option>
             <option value="deteqtivi">დეტექტივი</option>
             <option value="samecniero">სამეც. ფანტასტიკა</option>
-            <option value="klasika">კლასიკა</option>
-            <option value="istoriuli">ისტორიული</option>
             <option value="satavgadasavlo">სათავგადასავლო</option>
             <option value="poezia">პროზა/პოეზია</option>
+            <option value="istoriuli">ისტორიული</option>
             <option value="saswavlo">სასწავლო</option>
+            <option value="sabavshvo">საბავშვო</option>
             <option value="sxva">სხვა</option>
           </select>
+        </div>
+        <div>
+          <label for="price">ფასი: </label>
+          <input type="text" id="price" name="price" required />
         </div>
         <div>
           <label for="language">წიგნის ენა:</label>
@@ -56,8 +75,14 @@
         </div>
 
         <div>
-          <label for="description">დამატებითი ინფორმაცია:</label>
-          <textarea id="description" name="description" required></textarea>
+          <label for="description">დამატებითი ინფორმაცია:</label><br />
+          <textarea
+            rows="7"
+            cols="50"
+            id="description"
+            name="description"
+            required
+          ></textarea>
         </div>
         <div>
           <label for="photo">წიგნის ფოტო:</label>

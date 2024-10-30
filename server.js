@@ -29,6 +29,7 @@ db.serialize(() => {
         title TEXT,
         author TEXT,
         genre TEXT,
+        price TEXT,
         language TEXT,
         description TEXT,
         photo TEXT,  
@@ -65,7 +66,7 @@ app.get("/", (req, res) => {
   });
 });
 app.get("/login", (req, res) => {
-  res.render("login");
+  res.render("login", { user: req.session.user });
 });
 app.get("/logout", (req, res) => {
   req.session.destroy((err) => {
@@ -102,7 +103,7 @@ app.post("/login", (req, res) => {
   });
 });
 app.get("/register", (req, res) => {
-  res.render("register");
+  res.render("register", { user: req.session.user });
 });
 
 app.post("/register", (req, res) => {
@@ -137,11 +138,15 @@ app.post("/register", (req, res) => {
 app.get("/add-book", (req, res) => {
   // Ensure the user is logged in before showing the add book page
   if (!req.session.user) {
-    return res.redirect("/login");
+    return res.redirect("/login", { user: req.session.user });
   }
   res.render("add-book", { user: req.session.user });
 });
+app.get("/about", (req, res) => {
+  // Ensure the user is logged in before showing the add book page
 
+  res.render("about", { user: req.session.user });
+});
 app.get("/my-books", (req, res) => {
   // Ensure the user is logged in before showing their books
   if (!req.session.user) {
@@ -219,7 +224,7 @@ const storage = multer.diskStorage({
 // Handle the book submission
 app.post("/add-book", upload.single("photo"), async (req, res) => {
   try {
-    const { title, author, genre, language, description } = req.body;
+    const { title, author, genre, price, language, description } = req.body;
     const userId = req.session.user.id;
 
     if (!req.file) {
@@ -252,9 +257,9 @@ app.post("/add-book", upload.single("photo"), async (req, res) => {
     // Add to database
     await new Promise((resolve, reject) => {
       db.run(
-        `INSERT INTO books (title, author, genre, language, description, photo, user_id) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [title, author, genre, language, description, photoPath, userId],
+        `INSERT INTO books (title, author, genre, price, language, description, photo, user_id) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [title, author, genre, price, language, description, photoPath, userId],
         function (err) {
           if (err) reject(err);
           else resolve();

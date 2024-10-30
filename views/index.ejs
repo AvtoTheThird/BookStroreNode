@@ -8,22 +8,46 @@
     <title>Second-Hand Book Market</title>
   </head>
   <body>
+    <button class="hamburger-menu" onclick="toggleSidebar()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <div class="overlay" onclick="toggleSidebar()"></div>
+
     <header>
       <a href="/">
-        <img src="logo.png" style="width: 75px" alt="" />
+        <img class="logo" src="logo.png" alt="" />
       </a>
-      <div style="display: flex; gap: 2rem">
+      <div>
+        <a href="/about">საიტის შესახებ</a>
+
         <% if (user) { %>
-        <p>Welcome, <%= user.username %>!</p>
-        <a href="/logout">გამოსვლა</a>
-        <a href="/add-book">წიგნის დამატება</a>
-        <a href="/my-books">ჩემი წიგნები</a>
+        <div class="user-menu">
+          <p style="color: aliceblue; text-align: center">
+            გამარჯობა, <%= user.username %>! <br />
+            <span>&nabla;</span>
+          </p>
+
+          <div class="user-options">
+            <a href="/logout">გამოსვლა</a>
+            <a href="/add-book">წიგნის დამატება</a>
+            <a href="/my-books">ჩემი წიგნები</a>
+          </div>
+        </div>
         <% } else { %>
         <a href="/login">შესვლა</a>
-        <a href="/register">რეგისტაცია</a>
+        <a href="/register">რეგისტრაცია</a>
         <% } %>
-        <input type="text" id="search-input" placeholder="Search books..." />
-        <button onclick="searchBooks()">Search</button>
+        <div style="margin: 0px; padding: 0px">
+          <input type="text" id="search-input" placeholder="Search books..." />
+          <button
+            style="background: none; border: none"
+            onclick="searchBooks()"
+          >
+            <img class="search-img" src="/search.png" alt="" />
+          </button>
+        </div>
       </div>
     </header>
 
@@ -87,10 +111,12 @@
           <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
             <img id="modal-photo" src="" alt="" />
-            <div style="display: flex; flex-direction: column; gap: 2rem">
+            <div>
               <h2 id="modal-title"></h2>
               <p id="modal-author"></p>
               <p id="modal-language"></p>
+              <p id="modal-price"></p>
+
               <p id="modal-description"></p>
               <p id="modal-user">
                 Listed by: <span id="modal-username"></span>
@@ -105,12 +131,23 @@
           <p>No books found. Start by adding some!</p>
           <% } else { %> <% books.forEach(book => { %>
           <div class="book" onclick="openModal(<%= book.id %>)">
-            <h2><%= book.title %></h2>
-            <p>Author: <%= book.author %></p>
             <img
               src="/uploads/<%= book.photo.split('/').pop() %>"
               alt="<%= book.title %>"
             />
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              "
+            >
+              <div>
+                <h3><%= book.title %></h3>
+                <p>ავტორი: <%= book.author %></p>
+              </div>
+              <p><%= book.price+"₾" %></p>
+            </div>
           </div>
           <% }); %> <% } %>
         </div>
@@ -126,18 +163,21 @@
               document.getElementById("modal-title").innerText = data.title;
               document.getElementById(
                 "modal-author"
-              ).innerText = `Author: ${data.author}`;
+              ).innerText = `ავტორი: ${data.author}`;
               document.getElementById(
                 "modal-language"
-              ).innerText = `Language: ${data.language}`;
+              ).innerText = `ენა: ${data.language}`;
+              document.getElementById(
+                "modal-price"
+              ).innerText = `ფასი: ${data.price}₾`;
               document.getElementById(
                 "modal-description"
-              ).innerText = `Description: ${data.description}`;
+              ).innerText = `აღწერა: ${data.description}`;
               document.getElementById("modal-username").innerText =
                 data.username;
               document.getElementById(
                 "modal-phone"
-              ).innerText = `Phone: ${data.phone}`;
+              ).innerText = `ტელეფონი: ${data.phone}`;
               document.getElementById("myModal").style.display = "block";
               document.getElementById(
                 "modal-photo"
@@ -194,6 +234,35 @@
           })
           .catch((error) => console.error("Error fetching books:", error));
       }
+      function toggleSidebar() {
+        const sidebar = document.querySelector(".sidebar");
+        const overlay = document.querySelector(".overlay");
+        const hamburger = document.querySelector(".hamburger-menu");
+        const spans = hamburger.getElementsByTagName("span");
+
+        sidebar.classList.toggle("active");
+        overlay.classList.toggle("active");
+
+        // Animate hamburger to X
+        if (sidebar.classList.contains("active")) {
+          spans[0].style.transform = "rotate(45deg) translate(5px, 5px)";
+          spans[1].style.opacity = "0";
+          spans[2].style.transform = "rotate(-45deg) translate(7px, -7px)";
+        } else {
+          spans[0].style.transform = "none";
+          spans[1].style.opacity = "1";
+          spans[2].style.transform = "none";
+        }
+      }
+
+      // Close sidebar when clicking a link (on mobile)
+      document.querySelectorAll(".sidebar a").forEach((link) => {
+        link.addEventListener("click", () => {
+          if (window.innerWidth <= 768) {
+            toggleSidebar();
+          }
+        });
+      });
     </script>
   </body>
 </html>

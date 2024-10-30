@@ -9,25 +9,34 @@
   <body>
     <header>
       <a href="/">
-        <img src="logo.png" style="width: 75px" alt="" />
+        <img class="logo" src="logo.png" alt="" />
       </a>
-      <div style="display: flex; gap: 2rem">
+      <div style="display: flex; align-items: center; gap: 2rem">
+        <a href="/about">საიტის შესახებ</a>
+
         <% if (user) { %>
-        <p>Welcome, <%= user.username %>!</p>
-        <a href="/logout">გამოსვლა</a>
-        <a href="/add-book">წიგნის დამატება</a>
-        <a href="/my-books">ჩემი წიგნები</a>
+        <div class="user-menu">
+          <p style="color: aliceblue; text-align: center">
+            გამარჯობა, <%= user.username %>! <br />
+            <span>&nabla;</span>
+          </p>
+
+          <div class="user-options">
+            <a href="/logout">გამოსვლა</a>
+            <a href="/add-book">წიგნის დამატება</a>
+            <a href="/my-books">ჩემი წიგნები</a>
+          </div>
+        </div>
         <% } else { %>
         <a href="/login">შესვლა</a>
-        <a href="/register">რეგისტაცია</a>
-
+        <a href="/register">რეგისტრაცია</a>
         <% } %>
-        <input type="text" name="" id="" />
+        <input type="text" id="search-input" placeholder="Search books..." />
+        <button onclick="searchBooks()">Search</button>
       </div>
     </header>
     <section class="book-content">
-      <h1>My Books</h1>
-      <a href="/add-book">Add New Book</a>
+      <h1 style="padding-bottom: 20px">ჩემი წიგნები</h1>
       <div class="book-list">
         <% if (books.length === 0) { %>
         <p>No books found. Start by adding some!</p>
@@ -51,7 +60,6 @@
         </div>
         <% }); %> <% } %>
       </div>
-      <p><a href="/">Back to Home</a></p>
     </section>
   </body>
 </html>

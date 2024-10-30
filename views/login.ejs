@@ -10,18 +10,43 @@
   <body>
     <header>
       <a href="/">
-        <img src="logo.png" style="width: 75px" alt="" />
+        <img class="logo" src="logo.png" alt="" />
       </a>
-      <div style="display: flex; gap: 2rem">
-        <a href="/login">შესვლა</a>
-        <a href="/register">რეგისტაცია</a>
+      <div>
+        <a href="/about">საიტის შესახებ</a>
 
-        <input type="text" name="" id="" />
+        <% if (user) { %>
+        <div class="user-menu">
+          <p style="color: aliceblue; text-align: center">
+            გამარჯობა, <%= user.username %>! <br />
+            <span>&nabla;</span>
+          </p>
+
+          <div class="user-options">
+            <a href="/logout">გამოსვლა</a>
+            <a href="/add-book">წიგნის დამატება</a>
+            <a href="/my-books">ჩემი წიგნები</a>
+          </div>
+        </div>
+        <% } else { %>
+        <a href="/login">შესვლა</a>
+        <a href="/register">რეგისტრაცია</a>
+        <% } %>
+        <div style="margin: 0px; padding: 0px">
+          <input type="text" id="search-input" placeholder="Search books..." />
+          <button
+            style="background: none; border: none"
+            onclick="searchBooks()"
+          >
+            <img class="search-img" src="/search.png" alt="" />
+          </button>
+        </div>
       </div>
     </header>
     <section>
-      <h1>შეავსეთ ფორმა</h1>
-      <form action="/login" method="POST">
+      <form class="form" action="/login" method="POST">
+        <h1>შეავსეთ ფორმა</h1>
+
         <div>
           <label for="username">სახელი:</label>
           <input type="text" id="username" name="username" required />
@@ -31,8 +56,13 @@
           <input type="password" id="password" name="password" required />
         </div>
         <button type="submit">Login</button>
+        <p>
+          ჯერ არ ხარ ჩვენიანი?
+          <a href="/register" style="color: rgb(108, 123, 255)"
+            >დარეგისტრირდი</a
+          >
+        </p>
       </form>
-      <p>ჯერ არ ხარ ჩვენიანი? <a href="/register">დარეგისტრირდი</a></p>
     </section>
   </body>
 </html>
