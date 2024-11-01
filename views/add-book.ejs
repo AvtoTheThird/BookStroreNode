@@ -43,6 +43,17 @@
         method="POST"
         enctype="multipart/form-data"
       >
+        <!-- Error Alert -->
+        <% if (errors && errors.length > 0) { %>
+        <div class="error-alert">
+          <ul>
+            <% errors.forEach(function(error) { %>
+            <li><%= error.msg %></li>
+            <% }); %>
+          </ul>
+        </div>
+        <% } %>
+
         <div>
           <label for="title">სახელი:</label>
           <input type="text" id="title" name="title" required />

@@ -19,12 +19,10 @@
       <a href="/">
         <img class="logo" src="logo.png" alt="" />
       </a>
-      <div>
-        <a href="/about">საიტის შესახებ</a>
-
+      <div class="search-dropdown">
         <% if (user) { %>
         <div class="user-menu">
-          <p style="color: aliceblue; text-align: center">
+          <p>
             გამარჯობა, <%= user.username %>! <br />
             <span>&nabla;</span>
           </p>
@@ -33,14 +31,22 @@
             <a href="/logout">გამოსვლა</a>
             <a href="/add-book">წიგნის დამატება</a>
             <a href="/my-books">ჩემი წიგნები</a>
+            <a href="/about">საიტის შესახებ</a>
           </div>
         </div>
         <% } else { %>
         <a href="/login">შესვლა</a>
         <a href="/register">რეგისტრაცია</a>
+        <a href="/about">საიტის შესახებ</a>
+
         <% } %>
         <div style="margin: 0px; padding: 0px">
-          <input type="text" id="search-input" placeholder="Search books..." />
+          <input
+            class="search"
+            type="text"
+            id="search-input"
+            placeholder="Search books..."
+          />
           <button
             style="background: none; border: none"
             onclick="searchBooks()"

@@ -7,9 +7,9 @@ const upload = multer({ dest: "public/uploads/" });
 const path = require("path");
 const sharp = require("sharp");
 const fs = require("fs").promises;
-const { existsSync, unlinkSync } = require("fs"); // Correctly import sync operations
-const { pipeline } = require("stream/promises");
 const { exec } = require("child_process");
+const { body, validationResult, query } = require("express-validator");
+const { error } = require("console");
 
 const app = express();
 const db = new sqlite3.Database("./database/books.db");
@@ -66,7 +66,7 @@ app.get("/", (req, res) => {
   });
 });
 app.get("/login", (req, res) => {
-  res.render("login", { user: req.session.user });
+  res.render("login", { user: req.session.user, errors: [] });
 });
 app.get("/logout", (req, res) => {
   req.session.destroy((err) => {
@@ -103,45 +103,66 @@ app.post("/login", (req, res) => {
   });
 });
 app.get("/register", (req, res) => {
-  res.render("register", { user: req.session.user });
+  res.render("register", { user: req.session.user, errors: [] });
 });
 
-app.post("/register", (req, res) => {
-  const { username, password, phone } = req.body;
-
-  // Hash the password
-  bcrypt.hash(password, 10, (err, hash) => {
-    if (err) {
-      console.error(err.message);
-      return res.status(500).send("Error hashing password");
+app.post(
+  "/register",
+  [
+    body("username")
+      .trim()
+      .isLength({ min: 2 })
+      .withMessage("სახელი უნდა იყოს 2 ასოზე მეტი"),
+    body("password")
+      .isLength({ min: 8 })
+      .withMessage("აპროლი უნდა იყოს მინიმუმ 8 სიმბოლო")
+      .escape(),
+    body("phone")
+      .optional({ checkFalsy: true })
+      .isMobilePhone()
+      .withMessage("შეიყვანეთ ვალიდური მობილურის ნომერი")
+      .escape(),
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      // Render the register page with error messages
+      return res.status(400).render("register", {
+        errors: errors.array(),
+        user: req.session.user,
+      });
     }
 
-    // Insert the new user into the database
-    db.run(
-      `INSERT INTO users (username, password, phone) VALUES (?, ?, ?)`,
-      [username, hash, phone],
-      function (err) {
-        if (err) {
-          if (err.code === "SQLITE_CONSTRAINT") {
-            return res.status(400).send("Username already exists");
-          }
-          console.error(err.message);
-          return res.status(500).send("Error creating user");
-        }
+    const { username, password, phone } = req.body;
 
-        // Redirect to the login page after successful registration
-        res.redirect("/login");
+    bcrypt.hash(password, 10, (err, hash) => {
+      if (err) {
+        console.error(err.message);
+        return res.status(500).send("Error hashing password");
       }
-    );
-  });
-});
-app.get("/add-book", (req, res) => {
-  // Ensure the user is logged in before showing the add book page
-  if (!req.session.user) {
-    return res.redirect("/login", { user: req.session.user });
+
+      db.run(
+        `INSERT INTO users (username, password, phone) VALUES (?, ?, ?)`,
+        [username, hash, phone],
+        function (err) {
+          if (err) {
+            if (err.code === "SQLITE_CONSTRAINT") {
+              return res.status(400).render("register", {
+                errors: [{ msg: "Username already exists" }],
+                user: req.session.user,
+              });
+            }
+            console.error(err.message);
+            return res.status(500).send("Error creating user");
+          }
+
+          res.redirect("/login");
+        }
+      );
+    });
   }
-  res.render("add-book", { user: req.session.user });
-});
+);
+
 app.get("/about", (req, res) => {
   // Ensure the user is logged in before showing the add book page
 
@@ -222,70 +243,127 @@ const storage = multer.diskStorage({
 });
 
 // Handle the book submission
-app.post("/add-book", upload.single("photo"), async (req, res) => {
-  try {
+app.get("/add-book", (req, res) => {
+  // Ensure the user is logged in before showing the add book page
+  if (!req.session.user) {
+    return res.redirect("/login");
+  }
+  res.render("add-book", { user: req.session.user, errors: [] });
+});
+
+app.post(
+  "/add-book",
+  upload.single("photo"),
+  [
+    // Validation and sanitization for each field
+    body("title").trim().escape().notEmpty().withMessage("Title is required"),
+    body("author").trim().escape().notEmpty().withMessage("Author is required"),
+    body("genre").trim().escape().notEmpty().withMessage("Genre is required"),
+    body("price")
+      .isFloat({ gt: 0 })
+      .withMessage("Price must be a positive number")
+      .toFloat(),
+    body("language")
+      .trim()
+      .escape()
+      .notEmpty()
+      .withMessage("Language is required"),
+    body("description").trim().escape(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    const validationErrors = errors
+      .array()
+      .map((error) => ({ msg: error.msg }));
+
+    if (!errors.isEmpty()) {
+      // If validation errors exist, re-render the form with error messages
+      return res.render("add-book", {
+        user: req.session.user,
+        errors: validationErrors,
+      });
+    }
+
+    // Extract sanitized input values
     const { title, author, genre, price, language, description } = req.body;
     const userId = req.session.user.id;
 
     if (!req.file) {
-      return res.status(400).send("No photo uploaded");
+      return res.render("add-book", {
+        user: req.session.user,
+        errors: [{ msg: "No photo uploaded" }],
+      });
     }
 
-    const originalPath = req.file.path;
-    const filename = path.parse(req.file.filename).name;
-    const compressedFilename = `${filename}-compressed.jpg`;
-    const compressedPath = path.join(
-      path.dirname(originalPath),
-      compressedFilename
-    );
-
-    // Compress image
-    await sharp(originalPath)
-      .resize(800, 800, {
-        fit: "inside",
-        withoutEnlargement: true,
-      })
-      .jpeg({
-        quality: 80,
-        mozjpeg: true,
-      })
-      .toFile(compressedPath);
-
-    // Store the compressed file path
-    const photoPath = compressedPath.replace(/\\/g, "/");
-
-    // Add to database
-    await new Promise((resolve, reject) => {
-      db.run(
-        `INSERT INTO books (title, author, genre, price, language, description, photo, user_id) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [title, author, genre, price, language, description, photoPath, userId],
-        function (err) {
-          if (err) reject(err);
-          else resolve();
-        }
+    try {
+      const originalPath = req.file.path;
+      const filename = path.parse(req.file.filename).name;
+      const compressedFilename = `${filename}-compressed.jpg`;
+      const compressedPath = path.join(
+        path.dirname(originalPath),
+        compressedFilename
       );
-    });
 
-    // Delete original file using command line (most reliable method)
-    const deleteCommand =
-      process.platform === "win32"
-        ? `del /f "${originalPath}"`
-        : `rm -f "${originalPath}"`;
+      // Compress image
+      await sharp(originalPath)
+        .resize(800, 800, {
+          fit: "inside",
+          withoutEnlargement: true,
+        })
+        .jpeg({
+          quality: 80,
+          mozjpeg: true,
+        })
+        .toFile(compressedPath);
 
-    await new Promise((resolve, reject) => {
-      exec(deleteCommand, (error) => {
-        if (error) reject(error);
-        else resolve();
+      const photoPath = compressedPath.replace(/\\/g, "/");
+
+      // Add to database
+      await new Promise((resolve, reject) => {
+        db.run(
+          `INSERT INTO books (title, author, genre, price, language, description, photo, user_id) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            title,
+            author,
+            genre,
+            price,
+            language,
+            description,
+            photoPath,
+            userId,
+          ],
+          function (err) {
+            if (err) reject(err);
+            else resolve();
+          }
+        );
       });
-    });
 
-    res.redirect("/");
-  } catch (error) {
-    console.error("Error:", error);
-    return res.status(500).send("An error occurred");
+      // Delete original file
+      const deleteCommand =
+        process.platform === "win32"
+          ? `del /f "${originalPath}"`
+          : `rm -f "${originalPath}"`;
+
+      await new Promise((resolve, reject) => {
+        exec(deleteCommand, (error) => {
+          if (error) reject(error);
+          else resolve();
+        });
+      });
+
+      res.redirect("/");
+    } catch (error) {
+      console.error("Error:", error);
+      return res.render("add-book", {
+        user: req.session.user,
+        errors: [{ msg: "An error occurred while adding the book" }],
+      });
+    }
   }
-});
+);
+
 app.get("/books", (req, res) => {
   const genre = req.query.genre;
   let query = "SELECT * FROM books";
@@ -307,19 +385,35 @@ app.get("/books", (req, res) => {
     res.render("index", { books, user: req.session.user, genre });
   });
 });
-app.get("/search", (req, res) => {
-  const query = req.query.query.toLowerCase(); // Get the search query
+app.get(
+  "/search",
+  [
+    query("query")
+      .trim() // Remove whitespace from both ends
+      .escape() // Escape HTML characters to prevent XSS
+      .notEmpty() // Validate that the query is not empty
+      .withMessage("Search query cannot be empty"),
+  ],
+  (req, res) => {
+    const errors = validationResult(req); // Check for validation errors
 
-  db.all(
-    `SELECT * FROM books WHERE LOWER(title) LIKE ? OR LOWER(author) LIKE ?`,
-    [`%${query}%`, `%${query}%`],
-    (err, books) => {
-      if (err) {
-        return res.status(500).send("Error retrieving books");
-      }
-      res.json({ books }); // Respond with the filtered books
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
-  );
-});
+
+    const searchQuery = req.query.query.toLowerCase(); // Get the sanitized search query
+
+    db.all(
+      `SELECT * FROM books WHERE LOWER(title) LIKE ? OR LOWER(author) LIKE ?`,
+      [`%${searchQuery}%`, `%${searchQuery}%`],
+      (err, books) => {
+        if (err) {
+          return res.status(500).send("Error retrieving books");
+        }
+        res.json({ books }); // Respond with the filtered books
+      }
+    );
+  }
+);
 // Start Server
 app.listen(3000, () => console.log("Server running on http://localhost:3000"));

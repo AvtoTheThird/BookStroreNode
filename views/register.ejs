@@ -11,12 +11,10 @@
       <a href="/">
         <img class="logo" src="logo.png" alt="" />
       </a>
-      <div>
-        <a href="/about">საიტის შესახებ</a>
-
+      <div class="search-dropdown">
         <% if (user) { %>
         <div class="user-menu">
-          <p style="color: aliceblue; text-align: center">
+          <p>
             გამარჯობა, <%= user.username %>! <br />
             <span>&nabla;</span>
           </p>
@@ -25,6 +23,7 @@
             <a href="/logout">გამოსვლა</a>
             <a href="/add-book">წიგნის დამატება</a>
             <a href="/my-books">ჩემი წიგნები</a>
+            <a href="/about">საიტის შესახებ</a>
           </div>
         </div>
         <% } else { %>
@@ -32,7 +31,12 @@
         <a href="/register">რეგისტრაცია</a>
         <% } %>
         <div style="margin: 0px; padding: 0px">
-          <input type="text" id="search-input" placeholder="Search books..." />
+          <input
+            class="search"
+            type="text"
+            id="search-input"
+            placeholder="Search books..."
+          />
           <button
             style="background: none; border: none"
             onclick="searchBooks()"
@@ -45,6 +49,16 @@
     <section>
       <form class="form" action="/register" method="POST">
         <h1>შეავსეთ ფორმა</h1>
+
+        <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+        <div class="error-alert">
+          <ul>
+            <% errors.forEach(function(error) { %>
+            <li><%= error.msg %></li>
+            <% }); %>
+          </ul>
+        </div>
+        <% } %>
 
         <div>
           <label for="username">სახელი:</label>
