@@ -458,3 +458,29 @@ input[type="text,password"] {
 .error-alert li {
   margin: 5px 0;
 }
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.pagination-link {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  text-decoration: none;
+  color: #333;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.pagination-link:hover {
+  background-color: #f0f0f0;
+}
+
+.pagination-link.active {
+  background-color: #023872;
+  color: white;
+  border-color: #00152c;
+}

@@ -157,6 +157,30 @@
           </div>
           <% }); %> <% } %>
         </div>
+        <% if (books.length > 0) { %>
+        <div class="pagination">
+          <% if (currentPage > 1) { %>
+          <a
+            href="/books?<%= genre ? 'genre=' + genre + '&' : '' %>page=<%= currentPage - 1 %>"
+            class="pagination-link"
+            >წინა</a
+          >
+          <% } %> <% for(let i = 1; i <= totalPages; i++) { %>
+          <a
+            href="/books?<%= genre ? 'genre=' + genre + '&' : '' %>page=<%= i %>"
+            class="pagination-link <%= i === currentPage ? 'active' : '' %>"
+          >
+            <%= i %>
+          </a>
+          <% } %> <% if (currentPage < totalPages) { %>
+          <a
+            href="/books?<%= genre ? 'genre=' + genre + '&' : '' %>page=<%= currentPage + 1 %>"
+            class="pagination-link"
+            >შემდეგი</a
+          >
+          <% } %>
+        </div>
+        <% } %>
       </section>
     </div>
 

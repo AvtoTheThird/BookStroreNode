@@ -57,12 +57,37 @@ app.set("view engine", "ejs");
 // Routes
 
 app.get("/", (req, res) => {
-  db.all(`SELECT * FROM books`, [], (err, books) => {
-    if (err) {
-      console.error(err.message);
+  const page = parseInt(req.query.page) || 1;
+  const booksPerPage = 20;
+  const offset = (page - 1) * booksPerPage;
+
+  db.get("SELECT COUNT(*) AS total FROM books", (countErr, countResult) => {
+    if (countErr) {
+      console.error(countErr.message);
       return res.status(500).send("Error retrieving books");
     }
-    res.render("index", { user: req.session.user, books, genre: undefined });
+
+    const totalBooks = countResult.total;
+    const totalPages = Math.ceil(totalBooks / booksPerPage);
+
+    db.all(
+      `SELECT * FROM books LIMIT ? OFFSET ?`,
+      [booksPerPage, offset],
+      (err, books) => {
+        if (err) {
+          console.error(err.message);
+          return res.status(500).send("Error retrieving books");
+        }
+        res.render("index", {
+          user: req.session.user,
+          books,
+          genre: undefined,
+          currentPage: page,
+          totalPages: totalPages,
+          totalBooks: totalBooks,
+        });
+      }
+    );
   });
 });
 app.get("/login", (req, res) => {
@@ -366,23 +391,53 @@ app.post(
 
 app.get("/books", (req, res) => {
   const genre = req.query.genre;
+  const page = parseInt(req.query.page) || 1; // Current page, default to 1
+  const booksPerPage = 20; // Number of books per page
+  const offset = (page - 1) * booksPerPage;
+
+  // Base query
+  let countQuery = "SELECT COUNT(*) AS total FROM books";
   let query = "SELECT * FROM books";
   const params = [];
 
-  // Filter by genre if a genre is specified
+  // Add genre filter if specified
   if (genre) {
+    countQuery += " WHERE genre = ?";
     query += " WHERE genre = ?";
     params.push(genre);
   }
 
-  db.all(query, params, (err, books) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send("Error retrieving books.");
+  // First, get total number of books
+  db.get(countQuery, params, (countErr, countResult) => {
+    if (countErr) {
+      console.error(countErr);
+      return res.status(500).send("Error counting books.");
     }
-    // Render books with the filtered list
 
-    res.render("index", { books, user: req.session.user, genre });
+    const totalBooks = countResult.total;
+    const totalPages = Math.ceil(totalBooks / booksPerPage);
+
+    // Add pagination to the main query
+    query += " LIMIT ? OFFSET ?";
+    params.push(booksPerPage, offset);
+
+    // Fetch paginated books
+    db.all(query, params, (err, books) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error retrieving books.");
+      }
+
+      // Render books with pagination information
+      res.render("index", {
+        books,
+        user: req.session.user,
+        genre,
+        currentPage: page,
+        totalPages: totalPages,
+        totalBooks: totalBooks,
+      });
+    });
   });
 });
 app.get(
