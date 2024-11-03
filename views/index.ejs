@@ -19,33 +19,34 @@
       <a href="/">
         <img class="logo" src="logo.png" alt="" />
       </a>
-      <div class="search-dropdown">
-        <% if (user) { %>
-        <div class="user-menu">
-          <p>
-            გამარჯობა, <%= user.username %>! <br />
-            <span>&nabla;</span>
-          </p>
+      <div class="search-input-dropdown">
+        <div class="search-dropdown">
+          <% if (user) { %>
+          <div class="user-menu">
+            <p>
+              გამარჯობა, <%= user.username %>! <br />
+              <span>&nabla;</span>
+            </p>
 
-          <div class="user-options">
-            <a href="/logout">გამოსვლა</a>
-            <a href="/add-book">წიგნის დამატება</a>
-            <a href="/my-books">ჩემი წიგნები</a>
-            <a href="/about">საიტის შესახებ</a>
+            <div class="user-options">
+              <a href="/logout">გამოსვლა</a>
+              <a href="/add-book">წიგნის დამატება</a>
+              <a href="/my-books">ჩემი წიგნები</a>
+              <a href="/about">საიტის შესახებ</a>
+            </div>
           </div>
-        </div>
-        <% } else { %>
-        <a href="/login">შესვლა</a>
-        <a href="/register">რეგისტრაცია</a>
-        <a href="/about">საიტის შესახებ</a>
+          <% } else { %>
+          <a href="/login">შესვლა</a>
+          <a href="/register">რეგისტრაცია</a>
+          <a href="/about">საიტის შესახებ</a>
 
-        <% } %>
-        <div style="margin: 0px; padding: 0px">
+          <% } %>
+        </div>
+        <div class="search" style="margin: 0px; padding: 0px">
           <input
-            class="search"
             type="text"
             id="search-input"
-            placeholder="Search books..."
+            placeholder="წიგნის ავტორი ან სახელი"
           />
           <button
             style="background: none; border: none"
@@ -116,14 +117,14 @@
         <div id="myModal" class="modal">
           <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
-            <img id="modal-photo" src="" alt="" />
+            <img class="modal-photo" id="modal-photo" src="" alt="" />
             <div>
               <h2 id="modal-title"></h2>
               <p id="modal-author"></p>
               <p id="modal-language"></p>
               <p id="modal-price"></p>
 
-              <p id="modal-description"></p>
+              <p class="description" id="modal-description"></p>
               <p id="modal-user">
                 Listed by: <span id="modal-username"></span>
               </p>
@@ -141,16 +142,10 @@
               src="/uploads/<%= book.photo.split('/').pop() %>"
               alt="<%= book.title %>"
             />
-            <div
-              style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-              "
-            >
+            <div class="book-data">
               <div>
                 <h3><%= book.title %></h3>
-                <p>ავტორი: <%= book.author %></p>
+                <p><%= book.author %></p>
               </div>
               <p><%= book.price+"₾" %></p>
             </div>
@@ -193,7 +188,7 @@
               document.getElementById("modal-title").innerText = data.title;
               document.getElementById(
                 "modal-author"
-              ).innerText = `ავტორი: ${data.author}`;
+              ).innerText = `${data.author}`;
               document.getElementById(
                 "modal-language"
               ).innerText = `ენა: ${data.language}`;

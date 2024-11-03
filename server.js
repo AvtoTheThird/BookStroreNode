@@ -9,7 +9,6 @@ const sharp = require("sharp");
 const fs = require("fs").promises;
 const { exec } = require("child_process");
 const { body, validationResult, query } = require("express-validator");
-const { error } = require("console");
 
 const app = express();
 const db = new sqlite3.Database("./database/books.db");
@@ -281,18 +280,30 @@ app.post(
   upload.single("photo"),
   [
     // Validation and sanitization for each field
-    body("title").trim().escape().notEmpty().withMessage("Title is required"),
-    body("author").trim().escape().notEmpty().withMessage("Author is required"),
-    body("genre").trim().escape().notEmpty().withMessage("Genre is required"),
+    body("title")
+      .trim()
+      .escape()
+      .notEmpty()
+      .withMessage("წიგნის სახელის შეყვანა სავალდებულოა"),
+    body("author")
+      .trim()
+      .escape()
+      .notEmpty()
+      .withMessage("წიგნის ავტორის შეყვანა სავალდებულოა"),
+    body("genre")
+      .trim()
+      .escape()
+      .notEmpty()
+      .withMessage("წიგნის ჟანრის არჩევა სავალდებულოა"),
     body("price")
       .isFloat({ gt: 0 })
-      .withMessage("Price must be a positive number")
+      .withMessage("ფასი უნდა იყოს დადებითი რიცხვი")
       .toFloat(),
     body("language")
       .trim()
       .escape()
       .notEmpty()
-      .withMessage("Language is required"),
+      .withMessage("ენის შეყვანა სავალდებულოა"),
     body("description").trim().escape(),
   ],
   async (req, res) => {

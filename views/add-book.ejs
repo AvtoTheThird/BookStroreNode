@@ -11,28 +11,42 @@
       <a href="/">
         <img class="logo" src="logo.png" alt="" />
       </a>
-      <div style="display: flex; align-items: center; gap: 2rem">
-        <a href="/about">საიტის შესახებ</a>
+      <div class="search-input-dropdown">
+        <div class="search-dropdown">
+          <% if (user) { %>
+          <div class="user-menu">
+            <p>
+              გამარჯობა, <%= user.username %>! <br />
+              <span>&nabla;</span>
+            </p>
 
-        <% if (user) { %>
-        <div class="user-menu">
-          <p style="color: aliceblue; text-align: center">
-            გამარჯობა, <%= user.username %>! <br />
-            <span>&nabla;</span>
-          </p>
-
-          <div class="user-options">
-            <a href="/logout">გამოსვლა</a>
-            <a href="/add-book">წიგნის დამატება</a>
-            <a href="/my-books">ჩემი წიგნები</a>
+            <div class="user-options">
+              <a href="/logout">გამოსვლა</a>
+              <a href="/add-book">წიგნის დამატება</a>
+              <a href="/my-books">ჩემი წიგნები</a>
+              <a href="/about">საიტის შესახებ</a>
+            </div>
           </div>
+          <% } else { %>
+          <a href="/login">შესვლა</a>
+          <a href="/register">რეგისტრაცია</a>
+          <a href="/about">საიტის შესახებ</a>
+
+          <% } %>
         </div>
-        <% } else { %>
-        <a href="/login">შესვლა</a>
-        <a href="/register">რეგისტრაცია</a>
-        <% } %>
-        <input type="text" id="search-input" placeholder="Search books..." />
-        <button onclick="searchBooks()">Search</button>
+        <div class="search" style="margin: 0px; padding: 0px">
+          <input
+            type="text"
+            id="search-input"
+            placeholder="წიგნის ავტორი ან სახელი"
+          />
+          <button
+            style="background: none; border: none"
+            onclick="searchBooks()"
+          >
+            <img class="search-img" src="/search.png" alt="" />
+          </button>
+        </div>
       </div>
     </header>
     <section class="book-content">
@@ -56,11 +70,17 @@
 
         <div>
           <label for="title">სახელი:</label>
-          <input type="text" id="title" name="title" required />
+          <input type="text" id="title" name="title" required maxlength="25" />
         </div>
         <div>
           <label for="author">ავტორი:</label>
-          <input type="text" id="author" name="author" required />
+          <input
+            type="text"
+            id="author"
+            name="author"
+            required
+            maxlength="25"
+          />
         </div>
         <div>
           <label for="genre">ჟანრი:</label>
@@ -82,7 +102,13 @@
         </div>
         <div>
           <label for="language">წიგნის ენა:</label>
-          <input type="text" id="language" name="language" required />
+          <input
+            type="text"
+            id="language"
+            name="language"
+            required
+            maxlength="20"
+          />
         </div>
 
         <div>
@@ -93,6 +119,7 @@
             id="description"
             name="description"
             required
+            maxlength="500"
           ></textarea>
         </div>
         <div>

@@ -6,10 +6,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-database
+database/*
 node_modules
-database
-
+public/uploads/*
 dist
 dist-ssr
 *.local
